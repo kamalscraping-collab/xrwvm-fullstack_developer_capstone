@@ -1,12 +1,12 @@
 # Uncomment the required imports before adding the code
 
-# from django.shortcuts import render
-# from django.http import HttpResponseRedirect, HttpResponse
-# from django.contrib.auth.models import User
-# from django.shortcuts import get_object_or_404, render, redirect
-# from django.contrib.auth import logout
-# from django.contrib import messages
-# from datetime import datetime
+from django.shortcuts import render
+from django.http import HttpResponseRedirect, HttpResponse
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth import logout
+from django.contrib import messages
+from datetime import datetime
 
 from django.http import JsonResponse
 from django.contrib.auth import login, authenticate
@@ -39,13 +39,39 @@ def login_user(request):
     return JsonResponse(data)
 
 # Create a `logout_request` view to handle sign out request
-# def logout_request(request):
-# ...
+@csrf_exempt
+def logout_request(request):
+    logout(request)  # Terminate user session
+    data = {"userName": ""}
+    return JsonResponse(data)
+
 
 # Create a `registration` view to handle sign up request
-# @csrf_exempt
-# def registration(request):
-# ...
+@csrf_exempt
+def registration(request):
+    data = json.loads(request.body)
+    username = data['userName'].strip()
+    password = data['password']
+    first_name = data.get('firstName', '').strip()
+    last_name = data.get('lastName', '').strip()
+    email = data.get('email', '').strip()
+
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({"userName": username, "error": "Already Registered"})
+
+    if email and User.objects.filter(email=email).exists():
+        return JsonResponse({"userName": username, "error": "Email already registered"})
+
+    user = User.objects.create_user(
+        username=username,
+        first_name=first_name,
+        last_name=last_name,
+        password=password,
+        email=email
+    )
+    login(request, user)
+
+    return JsonResponse({"userName": username, "status": "Authenticated"})
 
 # # Update the `get_dealerships` view to render the index page with
 # a list of dealerships
