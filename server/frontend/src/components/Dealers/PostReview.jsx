@@ -75,15 +75,23 @@ const PostReview = () => {
     }
   }
 
-  const get_cars = async ()=>{
-    const res = await fetch(carmodels_url, {
-      method: "GET"
-    });
-    const retobj = await res.json();
-    
-    let carmodelsarr = Array.from(retobj.CarModels)
-    setCarmodels(carmodelsarr)
-  }
+  const get_cars = async () => {
+    try {
+      const res = await fetch(carmodels_url, {
+        method: "GET"
+      });
+      const retobj = await res.json();
+      
+      if (retobj && retobj.CarModels) {
+        let carmodelsarr = Array.from(retobj.CarModels);
+        setCarmodels(carmodelsarr);
+      } else {
+        console.error("Backend responded, but 'CarModels' key is missing:", retobj);
+      }
+    } catch (error) {
+      console.error("Failed to connect to get_cars endpoint:", error);
+    }
+  };
   useEffect(() => {
     get_dealer();
     get_cars();
