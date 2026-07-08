@@ -1,49 +1,43 @@
-name: 'Lint Code'
+name: Lint Code
 
 on:
   push:
-    branches: [master, main]
+    branches: [main, master]
   pull_request:
-    branches: [master, main]
+    branches: [main, master]
 
 jobs:
   lint_python:
     name: Lint Python Files
     runs-on: ubuntu-latest
-
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.12
+      - name: Run Ruff check
+        uses: astral-sh/ruff-action@v4.0.0
+        with:
+          args: check --fix
 
-    - name: Run Linter
-      uses: astral-sh/ruff-action@v4.0.0
-      with:
-        src: "./server"
+      - name: Run Ruff format
+        uses: astral-sh/ruff-action@v4.0.0
+        with:
+          args: format
 
   lint_js:
-      name: Lint JavaScript Files
-      runs-on: ubuntu-latest
-
-      steps:
+    name: Lint JavaScript Files
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 14
+          node-version: 20
 
       - name: Install JSHint
-        run: npm install jshint --global
+        run: npm install -g jshint
 
-      - name: Run Linter
-        run: |
-          # This command finds all JavaScript files recursively and runs JSHint on them
-          find ./server/database -name "*.js" -exec jshint {} +
-          echo "Linted all the js files successfully"
+      - name: Run JSHint
+        run: find ./server/database -name "*.js" -exec jshint {} +
